@@ -48,6 +48,7 @@ from sklearn.neighbors import kneighbors_graph
 from sklearn.neighbors import radius_neighbors_graph
 from sys import exit
 from tempfile import NamedTemporaryFile
+from functools import reduce
 
 
 __all__ = ['get_local_densities', 'density_sampling']
@@ -64,7 +65,7 @@ def memory():
 
     mem_info = dict()
 
-    for k, v in psutil.virtual_memory().__dict__.iteritems():
+    for k, v in psutil.virtual_memory().__dict__.items():
            mem_info[k] = int(v)
            
     return mem_info
@@ -191,13 +192,13 @@ def get_local_densities(data, kernel_mult = 2.0, metric = 'manhattan'):
             _, counts = np.unique(fp, return_counts = True)
 
         local_densities = np.zeros(N_samples, dtype = int)
-        for i in xrange(N_samples):
+        for i in range(N_samples):
             local_densities[i] = counts[i]
     else:
         local_densities = np.zeros(N_samples, dtype = int)
 
         chunks_size = get_chunk_size(N_samples, 2)
-        for i in xrange(0, N_samples, chunks_size):
+        for i in range(0, N_samples, chunks_size):
             chunk = data[i:min(i + chunks_size, N_samples)]
 
             D = pairwise_distances(chunk, data, metric, n_jobs = 1)
@@ -313,11 +314,11 @@ def density_sampling(data, local_densities = None, metric = 'manhattan',
         ind = np.where(probs > random_state.uniform(size = N_kept))[0]
         samples_kept = samples_kept[ind]
     else:
-        print("\nERROR: Density_Sampling: density_sampling: 'desired_samples' has been "
+        print(("\nERROR: Density_Sampling: density_sampling: 'desired_samples' has been "
               "assigned a value of {desired_samples}, larger than {N_kept}, "
               "the number of samples whose local densities are high enough "
               "(i.e. excluded are the local densities in the lowest {outlier_percentile} "
-              "percentile).\n".format(**locals()))
+              "percentile).\n".format(**locals())))
         exit(1)
 
     return samples_kept
